@@ -1,6 +1,7 @@
 # docker-compose-daemon
 Starting docker containers via docker-compose, redirect docker-compose logs to stderr and stdout, monitoring container state
 
+```
 USAGE:
    docker-compose-daemon [global options] command [command options] [arguments...]
 
@@ -13,3 +14,4 @@ GLOBAL OPTIONS:
    --timeout, -t "5"						Timeout for container monitoring
    --help, -h							show help
    --version, -v
+```
