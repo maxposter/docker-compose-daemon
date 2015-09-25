@@ -71,17 +71,15 @@ func main() {
 		signal.Notify(quitChan, os.Interrupt)
 		signal.Notify(quitChan, syscall.SIGTERM)
 
-		terminating := false
 		gracefulStop := func(code int) {
 			var err error
-			terminating = true
 
 			ticker.Stop()
 
-			os.Stdout.WriteString("\nGraceful stopping reading logs...\n")
+			os.Stdout.WriteString("\nGraceful stopping logs reader...\n")
 			err = logCmd.Process.Signal(os.Kill)
 			if err != nil {
-				os.Stderr.WriteString(fmt.Sprintf("Cannot graceful stopping reading logs: %s\n", err.Error()))
+				os.Stderr.WriteString(fmt.Sprintf("Cannot graceful stopping logs reader: %s\n", err.Error()))
 			}
 
 			os.Stdout.WriteString("\nGraceful stopping containers...\n")
