@@ -42,3 +42,13 @@ OPTIONS:
    --help, -h							show help
    --version, -v
 ```
+
+### USAGE with supervisord config
+[program:example.com]
+command = docker-compose-daemon -f /var/www/docker-compose.yml -c www_app_1 -c www_webserver_1
+stdout_logfile = /var/www/log/example.ru.log
+stderr_logfile = /var/www/log/example.ru.error.log
+autostart = true
+autorestart = true
+user = someuser
+stopwaitsecs = 30
