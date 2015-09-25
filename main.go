@@ -62,11 +62,7 @@ func main() {
 		}
 
 		go func() {
-			err = logCmd.Run()
-			if err != nil {
-				os.Stderr.WriteString(fmt.Sprintf("Cannot read logs: %s\n", err.Error()))
-				os.Exit(1)
-			}
+			logCmd.Run()
 		}()
 
 		ticker := time.NewTicker(time.Second * time.Duration(c.Int("timeout")))
@@ -77,12 +73,21 @@ func main() {
 
 		terminating := false
 		gracefulStop := func(code int) {
+			var err error
 			terminating = true
+
+			ticker.Stop()
+
+			os.Stdout.WriteString("\nGraceful stopping reading logs...\n")
+			err = logCmd.Process.Signal(os.Kill)
+			if err != nil {
+				os.Stderr.WriteString(fmt.Sprintf("Cannot graceful stopping reading logs: %s\n", err.Error()))
+			}
+
 			os.Stdout.WriteString("\nGraceful stopping containers...\n")
 			err = stopCmd.Run()
 			if err != nil {
 				os.Stderr.WriteString(fmt.Sprintf("Cannot graceful stopping containers: %s\n", err.Error()))
-				os.Exit(1)
 			}
 			os.Exit(code)
 		}
@@ -90,20 +95,18 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				if !terminating {
-					for _, container := range containers {
-						processCmd := exec.Command("docker", "ps", "-a", "--format", "\"{{.Status}}\"", "-f", "name="+container)
-						output, psErr := processCmd.Output()
-						if psErr != nil {
-							os.Stderr.WriteString(fmt.Sprintf("Cannot check containers: %s\n", psErr.Error()))
-							gracefulStop(1)
-						}
+				for _, container := range containers {
+					processCmd := exec.Command("docker", "ps", "-a", "--format", "\"{{.Status}}\"", "-f", "name="+container)
+					output, psErr := processCmd.Output()
+					if psErr != nil {
+						os.Stderr.WriteString(fmt.Sprintf("Cannot check containers: %s\n", psErr.Error()))
+						gracefulStop(1)
+					}
 
-						status := string(output)
-						if !strings.Contains(status, "Up") {
-							os.Stderr.WriteString(fmt.Sprintf("Container \"%s\" is down. Current status: %s\n", container, status))
-							gracefulStop(1)
-						}
+					status := string(output)
+					if !strings.Contains(status, "Up") {
+						os.Stderr.WriteString(fmt.Sprintf("Container \"%s\" is down. Current status: %s\n", container, status))
+						gracefulStop(1)
 					}
 				}
 			case <-quitChan:
