@@ -44,6 +44,7 @@ OPTIONS:
 ```
 
 ### USAGE with supervisord config
+```
 [program:example.com]
 command = docker-compose-daemon -f /var/www/docker-compose.yml -c www_app_1 -c www_webserver_1
 stdout_logfile = /var/www/log/example.ru.log
@@ -52,3 +53,4 @@ autostart = true
 autorestart = true
 user = someuser
 stopwaitsecs = 30
+```
