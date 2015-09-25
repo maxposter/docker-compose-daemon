@@ -33,12 +33,9 @@ $ go install
 ### USAGE
 ```
 USAGE:
-   docker-compose-daemon [global options] command [command options] [arguments...]
+   docker-compose-daemon --configuration /path/to/docker-compose.yml --container name [--container name, ...]
 
-COMMANDS:
-   help, h	Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
+OPTIONS:
    --configuration, -f 						Docker compose config file: -f /path/to/docker-compose.yml
    --container, -c [--container option --container option]	Full container name: -c demo_app_1 -c demo_db_1 -c demo_web_1
    --timeout, -t "5"						Timeout for container monitoring
